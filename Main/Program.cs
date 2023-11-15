@@ -22,11 +22,12 @@ namespace Main {
             Console.Clear();
             string choice = Menu.ReadMenu();
             Console.Clear();
-            string username = string.Empty;
-            string password = string.Empty;
-
-            while (!choice.Equals("s")) {
-                switch (choice) {
+            while (!choice.Equals("s"))
+            {
+                string username;
+                string password;
+                switch (choice)
+                {
                     case "1":
                         BenchmarkRunner.Run<BenchmarkJsonSerialization>();
                         break;
@@ -47,7 +48,8 @@ namespace Main {
                         username = Console.ReadLine() ?? "";
                         Console.WriteLine("Set password");
                         password = Console.ReadLine() ?? "";
-                        if (User.SignUp(username, password, out User SignUpUser)) {
+                        if (User.SignUp(username, password, out User SignUpUser))
+                        {
                             Console.WriteLine(SignUpUser);
                             break;
                         }
@@ -58,8 +60,10 @@ namespace Main {
                         username = Console.ReadLine() ?? "";
                         Console.WriteLine("Type your password");
                         password = Console.ReadLine() ?? "";
-                        if(User.ReadFromDB(username, out User SignInUser)) {
-                            if (SignInUser.login(password, out string jwtToken)) {
+                        if (User.ReadFromDB(username, out User SignInUser))
+                        {
+                            if (SignInUser.Login(password, out string jwtToken))
+                            {
                                 Console.WriteLine("Succesfull Signed In, your JWT Token is: {0}", jwtToken);
                                 break;
                             }

@@ -16,17 +16,10 @@ using SecurityToken = Microsoft.IdentityModel.Tokens.SecurityToken;
 
 namespace PoCs.Classes.Security {
     public class JSONWebToken {
-        public static string EncryptionPassowrd = "";
-        public static int Exp = 300; // expiracion en segundos
-        public static string Iss = "issuer";
-        public static string Aud = "audience";
-
-        static JSONWebToken() {
-            byte[] RandomBytes = new byte[20];
-            NaClLibrary.randombytes_buf(RandomBytes, RandomBytes.Length);
-            EncryptionPassowrd = Convert.ToBase64String(RandomBytes);
-        }
-
+        public const string EncryptionPassowrd = "8zgXbK9atdKjjVJ/XSCdEg==";  // This Base64 password is just for PoC purposes, don't use this one on a production project
+        public const int Exp = 300; // expiracion en segundos
+        public const string Iss = "issuer";
+        public const string Aud = "audience";
 
         public static byte[] GenerateKey() {
             ECDsa key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -34,20 +27,18 @@ namespace PoCs.Classes.Security {
         }
 
         public static string GenerateToken(string user, byte[]? password = null) {
-            if (password == null) {
-                password = GenerateKey();
-            }
+            password ??= GenerateKey();
 
             ECDsa key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
             key.ImportEncryptedPkcs8PrivateKey(EncryptionPassowrd, new ReadOnlySpan<byte>(password), out _);
 
             DateTime Now = DateTime.UtcNow;
 
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor {
+            JwtSecurityTokenHandler tokenHandler = new ();
+            SecurityTokenDescriptor tokenDescriptor = new () {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-            new Claim(ClaimTypes.NameIdentifier, user),
+            new (ClaimTypes.NameIdentifier, user),
                 }),
                 Expires = Now.AddSeconds(Exp),
                 Issuer = Iss,
@@ -63,7 +54,7 @@ namespace PoCs.Classes.Security {
             ECDsa key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
             key.ImportEncryptedPkcs8PrivateKey(EncryptionPassowrd, new ReadOnlySpan<byte>(secret), out _);
 
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler tokenHandler = new ();
             try {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters {
                     ValidateIssuerSigningKey = true,

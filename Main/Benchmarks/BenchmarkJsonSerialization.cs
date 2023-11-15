@@ -1,5 +1,6 @@
-using BenchmarkDotNet.Attributes;
-using PoCs.Classes.TestCases;
+using Benchmark = BenchmarkDotNet.Attributes.BenchmarkAttribute;
+using MemoryDiagnoser = BenchmarkDotNet.Attributes.MemoryDiagnoserAttribute;
+using Automobil = PoCs.Classes.TestCases.Automobil;
 using JObject = Newtonsoft.Json.Linq.JObject;
 using JToken = Newtonsoft.Json.Linq.JToken;
 using JsonTextReader = Newtonsoft.Json.JsonTextReader;
@@ -8,9 +9,9 @@ namespace Main.Benchmarks {
     [MemoryDiagnoser]
     public class BenchmarkJsonSerialization {
         public const string StringData = @"{""Color"":""Rojo"",""Doors"":0,""Branch"":""Acura"",""HPs"":350,""Tires"":{""Width"":220,""AspectRatio"":55,""Architecture"":""R"",""Diameter"":17,""LoadIndex"":125,""SpeedRating"":""Z""},""Headlights"":{""Type"":""Led"",""Watts"":75,""Voltage"":12}}";
-        public static readonly MemoryStream memoryStreamData;
+        public readonly MemoryStream memoryStreamData;
 
-        static BenchmarkJsonSerialization() {
+        public BenchmarkJsonSerialization() {
             memoryStreamData = new MemoryStream();
             StreamWriter writer = new (memoryStreamData);
             writer.Write(StringData);
@@ -21,7 +22,7 @@ namespace Main.Benchmarks {
 
         [Benchmark(Baseline = true)]
         public void ReadObjectFromStringWithNewtonsoft() {
-            JObject jObject = JObject.Parse(StringData) ?? new JObject();
+            JObject jObject = JObject.Parse(StringData) ?? [];
             Automobil _ = jObject.ToObject<Automobil>() ?? Automobil.Empty;
         }
 

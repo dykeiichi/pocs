@@ -1,26 +1,34 @@
-using DllImport = System.Runtime.InteropServices.DllImportAttribute;
-using CallingConvention = System.Runtime.InteropServices.CallingConvention;
+// using DllImport = System.Runtime.InteropServices.DllImportAttribute; // use this on dotnet version less than 8
+using LibraryImport = System.Runtime.InteropServices.LibraryImportAttribute;
+// using CallingConvention = System.Runtime.InteropServices.CallingConvention; // use this on dotnet version less than 8
 using StringBuilder = System.Text.StringBuilder;
+using SHA512 = System.Security.Cryptography.SHA512;
 
 namespace PoCs.Classes.Security {
-	public class NaClLibrary {
+	public partial class NaClLibrary {
         private const string Name = "libsodium";
-        public static int id_ALG_ARGON2ID13 = 2;
-        public static long OPSLIMIT_SENSITIVE = 2;
-        public static int MEMLIMIT_SENSITIVE = 19922944;
+        private static int id_ALG_ARGON2ID13 = 2;
+        private static long OPSLIMIT_SENSITIVE = 2;
+        private static int MEMLIMIT_SENSITIVE = 19922944;
 
         static NaClLibrary() {
             sodium_init();
         }
 
-        [DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void sodium_init();
+        // use this on dotnet version less than 8
+        // [DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+        [LibraryImport(Name, EntryPoint = "sodium_init")]
+        internal static partial void sodium_init();
 
-        [DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void randombytes_buf(byte[] buffer, int size);
+        // use this on dotnet version less than 8
+        //[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+        [LibraryImport(Name, EntryPoint = "randombytes_buf")]
+        internal static partial void randombytes_buf(byte[] buffer, int size);
 
-        [DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int crypto_pwhash(byte[] buffer, long bufferLen, byte[] password, long passwordLen, byte[] salt, long opsLimit, int memLimit, int alg);
+        // use this on dotnet version less than 8
+        //[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+        [LibraryImport(Name, EntryPoint = "crypto_pwhash")]
+        internal static partial int crypto_pwhash(byte[] buffer, long bufferLen, byte[] password, long passwordLen, byte[] salt, long opsLimit, int memLimit, int alg);
 
         public static byte[] CreateSalt(int bytes_size = 16) {
             byte[] buffer = new byte[bytes_size];
@@ -44,13 +52,12 @@ namespace PoCs.Classes.Security {
 
             if (result != 0)
                 throw new Exception("An unexpected error has occurred.");
-            using (System.Security.Cryptography.SHA512 hash_512 = System.Security.Cryptography.SHA512.Create()) {
-                byte[] hashedInputBytes = hash_512.ComputeHash(hash);
-                StringBuilder hashedInputStringBuilder = new StringBuilder(128);
+
+            byte[] hashedInputBytes = SHA512.HashData(hash);
+            StringBuilder hashedInputStringBuilder = new (128);
                 foreach (byte b in hashedInputBytes)
                     hashedInputStringBuilder.Append(b.ToString("X2"));
                 return System.Text.Encoding.UTF8.GetBytes(hashedInputStringBuilder.ToString());
-            }
         }
 
         public static bool VerifyHash(string password, byte[] salt, byte[] hash) {

@@ -12,37 +12,30 @@ using PoCs.Functions;
 namespace PoCs.Classes.TestCases
 {
 
-    public class User {
+    public class User(string username, byte[] password, byte[] salt, byte[] jwt, byte[] totp)
+    {
 
         // This connection is just for PoC purposes, don't use this credentials on a production project
-        private static MySqlConnection mysqlconn = new (new MySqlConnectionStringBuilder() {
+        private static readonly MySqlConnection mysqlconn = new (new MySqlConnectionStringBuilder() {
             Database = "UsersDatabase",
             UserID = "root",
-            Password = "root",
+            Password = "hwuab+2@",
             Port = 3306,
             Server = "localhost"
         }.ConnectionString);
         private const string SPCreateUser = "sp_create_user";
         private const string VWReadUser = "vw_read_user";
-        public string Username = "";
-        public byte[] Password = new byte[128];
-        public byte[] Salt = new byte[16];
-        public byte[] Password_jwt = new byte[256];
-        public byte[] Secret_totp = new byte[32];
+        public string Username = username;
+        public byte[] Password = password;
+        public byte[] Salt = salt;
+        public byte[] Password_jwt = jwt;
+        public byte[] Secret_totp = totp;
 
-        public static readonly User Empty = new User();
+        public static readonly User Empty = new ();
 
-        private User() : this(string.Empty, Array.Empty<byte>(), Array.Empty<byte>(), Array.Empty<byte>(), Array.Empty<byte>()) {}
+        private User() : this(string.Empty, [], [], [], []) {}
 
-        public User(string username, byte[] password, byte[] salt, byte[] jwt, byte[] totp) {
-            Username = username;
-            Password = password;
-            Salt = salt;
-            Password_jwt = jwt;
-            Secret_totp = totp;
-        }
-
-        public bool login(string password, out string jwt) {
+        public bool Login(string password, out string jwt) {
             if (NaClLibrary.VerifyHash(password, Salt, Password)) {
                 jwt = JSONWebToken.GenerateToken(Username, Password_jwt);
                 return true;
@@ -66,23 +59,23 @@ namespace PoCs.Classes.TestCases
             user = Empty;
             return false;
         }
-        public bool validateTOTP(string totp) {
-            TOTP token = new TOTP(Secret_totp);
+        public bool ValidateTOTP(string totp) {
+            TOTP token = new (Secret_totp);
             if (token.ValidateTOTP(totp)) {
                 return true;
             }
             return false;
         }
 
-        public bool validateTOTP(uint totp) {
-            TOTP token = new TOTP(Secret_totp);
+        public bool ValidateTOTP(uint totp) {
+            TOTP token = new (Secret_totp);
             if (token.ValidateTOTP(totp)) {
                 return true;
             }
             return false;
         }
 
-        public string? validateJWT(string jwt) {
+        public string? ValidateJWT(string jwt) {
             if (JSONWebToken.ValidateCurrentToken(jwt, Password_jwt)) {
                 return JSONWebToken.GenerateToken(Username, Password_jwt);
             }
@@ -116,6 +109,8 @@ namespace PoCs.Classes.TestCases
             } catch (Exception ex) {
                 Console.WriteLine(ex.Message);
                 return false;
+            } finally {
+                mysqlconn.Close();
             }
             return true;
         }
@@ -152,6 +147,8 @@ namespace PoCs.Classes.TestCases
                 }
             } catch (Exception ex) {
                 Console.WriteLine(ex.Message);
+            } finally {
+                mysqlconn.Close();
             }
             user = Empty;
             return false;

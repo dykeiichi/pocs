@@ -4,43 +4,35 @@ using JsonResolver = PoCs.Functions.JsonResolver;
 
 namespace PoCs.Classes.TestCases{
 
-	public class Automobil {
+	public class Automobil(string Color, uint Doors, string Branch,
+                         uint HPs, Tire Tires, Headligth Headlights)
+    {
 		public static readonly Automobil Empty;
 
 		static Automobil() {
 			Empty = new Automobil();
         }
 
-        public string Color;
-		public uint Doors;
-		public string Branch;
-		public uint HPs;
-		public Tire Tires;
-		public Headligth Headlights;
-
-        public Automobil(string Color, uint Doors, string Branch,
-						 uint HPs, Tire Tires, Headligth Headlights) {
-			this.Color = Color;
-			this.Doors = Doors;
-			this.Branch = Branch;
-			this.HPs = HPs;
-			this.Tires = Tires;
-			this.Headlights = Headlights;
-        }
+        public string Color = Color;
+		public uint Doors = Doors;
+		public string Branch = Branch;
+		public uint HPs = HPs;
+		public Tire Tires = Tires;
+		public Headligth Headlights = Headlights;
 
         private Automobil(): this("", 0, "", 0, Tire.Empty, Headligth.Empty) { }
 
         public static bool TryParse(Stream jsonData, out Automobil automobil) {
             //Obtener Stream y usar JsonReader
-            MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new ();
             jsonData.CopyTo(stream);
-            JsonReader reader = new JsonReader(stream.ToArray());
+            JsonReader reader = new (stream.ToArray());
 
             return TryParse(ref reader, out automobil);
         }
 
         public static bool TryParse(MemoryStream jsonData, out Automobil automobil) {
-            JsonReader reader = new JsonReader(jsonData.ToArray());
+            JsonReader reader = new (jsonData.ToArray());
             return TryParse(ref reader, out automobil);
         }
 
@@ -121,7 +113,10 @@ namespace PoCs.Classes.TestCases{
 
     }
 
-	public class Tire {
+	public class Tire(uint Width, uint AspectRatio, char Architecture,
+                         uint Diameter, uint LoadIndex,
+                         char SpeedRating)
+    {
 
         public static readonly Tire Empty;
 
@@ -129,37 +124,26 @@ namespace PoCs.Classes.TestCases{
             Empty = new Tire();
         }
 
-        public uint Width;
-		public uint AspectRatio;
-		public char Architecture;
-		public uint Diameter;
-		public uint LoadIndex;
-		public char SpeedRating;
-		
-		public Tire(uint Width, uint AspectRatio, char Architecture,
-						 uint Diameter, uint LoadIndex,
-						 char SpeedRating) {
-			this.Width = Width;
-			this.AspectRatio = AspectRatio;
-			this.Architecture = Architecture;
-			this.Diameter = Diameter;
-			this.LoadIndex = LoadIndex;
-			this.SpeedRating = SpeedRating;
-        }
+        public uint Width = Width;
+		public uint AspectRatio = AspectRatio;
+		public char Architecture = Architecture;
+		public uint Diameter = Diameter;
+		public uint LoadIndex = LoadIndex;
+		public char SpeedRating = SpeedRating;
 
         private Tire() : this(0, 0, '\0', 0, 0, '\0') { }
 
         public static bool TryParse(Stream jsonData, out Tire tire) {
             //Obtener Stream y usar JsonReader
-            MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new ();
             jsonData.CopyTo(stream);
-            JsonReader reader = new JsonReader(stream.ToArray());
+            JsonReader reader = new (stream.ToArray());
 
             return TryParse(ref reader, out tire);
         }
 
         public static bool TryParse(MemoryStream jsonData, out Tire tire) {
-            JsonReader reader = new JsonReader(jsonData.ToArray());
+            JsonReader reader = new (jsonData.ToArray());
             return TryParse(ref reader, out tire);
         }
 
@@ -227,36 +211,31 @@ namespace PoCs.Classes.TestCases{
 
     }
 
-	public class Headligth {
+	public class Headligth(string Type, uint Watts, uint Voltage)
+    {
         public static readonly Headligth Empty;
 
         static Headligth() {
             Empty = new Headligth();
         }
 
-        public string Type;
-		public uint Watts;
-		public uint Voltage;
-
-		public Headligth(string Type, uint Watts, uint Voltage) {
-			this.Type = Type;
-			this.Watts = Watts;
-			this.Voltage = Voltage;
-        }
+        public string Type = Type;
+		public uint Watts = Watts;
+		public uint Voltage = Voltage;
 
         private Headligth() : this("", 0, 0) { }
 
         public static bool TryParse(Stream jsonData, out Headligth headligth) {
             //Obtener Stream y usar JsonReader
-            MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new ();
             jsonData.CopyTo(stream);
-            JsonReader reader = new JsonReader(stream.ToArray());
+            JsonReader reader = new (stream.ToArray());
 
             return TryParse(ref reader, out headligth);
         }
 
         public static bool TryParse(MemoryStream jsonData, out Headligth headligth) {
-            JsonReader reader = new JsonReader(jsonData.ToArray());
+            JsonReader reader = new (jsonData.ToArray());
             return TryParse(ref reader, out headligth);
         }
 

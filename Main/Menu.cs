@@ -14,7 +14,7 @@ namespace Main {
 
         private readonly Dictionary<string, string> Options;
 
-        private Menu() { Options = new(); }
+        private Menu() { Options = []; }
 
         public Menu(Dictionary<string, string> Options) {
             this.Options = Options;
